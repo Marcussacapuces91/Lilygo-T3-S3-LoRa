@@ -1,3 +1,5 @@
+
+// #include <Arduino.h>
 #include <SPI.h>
 #include <time.h>
 #include <sys/time.h>
@@ -25,11 +27,8 @@ namespace Pins {
 namespace LoRaConfig {
     constexpr uint32_t DEV_ADDR = 0x260B5C0E;
 
-    // provide your own keys (see on TTN end-device)
-    const uint8_t FN_NWK_S_INT_KEY[] = {  };
-    const uint8_t SN_NWK_S_INT_KEY[] = {  };
-    const uint8_t NWK_S_ENC_KEY[] = {  };
-    const uint8_t APP_S_KEY[] = {  };
+#include "keys.h"
+
 }
 
 class Application {
