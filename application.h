@@ -7,6 +7,7 @@
 #include "soc/reset_reasons.h"
 #include <RadioLib.h>
 #include "driver/temperature_sensor.h"
+#include "esp_mac.h"
 
 #define TAG_APP "APP"
 #define TZ_EUROPE_PARIS "CET-1CEST,M3.5.0,M10.5.0/3"
@@ -24,6 +25,7 @@ namespace Pins {
 }
 
 // --- Configuration LoRaWAN ABP (TTN) ---
+
 namespace LoRaConfig {
     constexpr uint32_t DEV_ADDR = 0x260B5C0E;
 
@@ -77,20 +79,21 @@ public:
         time_t now = time(NULL);
         struct tm timeinfo;
         localtime_r(&now, &timeinfo);
-        if ((timeinfo.tm_year <= 70) || (timeinfo.tm_min == 0)) {
+        if ((now <= 1700000000) || (timeinfo.tm_min == 0)) {
             ESP_LOGI(TAG_APP, "Demande RADIOLIB_LORAWAN_MAC_DEVICE_TIME (Year: %d)", timeinfo.tm_year);
             loraNode.sendMacCommandReq(RADIOLIB_LORAWAN_MAC_DEVICE_TIME);
         }
 
+        const int16_t tempVal = (int16_t)round(tsens_out * 10.0f);
         uint8_t payload[] = {
             0x01,   // channel 1
             0x67,   // Data type temp. sensor : 2 bytes 0.1 signed MSB
-            uint8_t(unsigned(tsens_out * 10) >> 8) & 0x7F,  // TODO traiter < 0
-            uint8_t(unsigned(tsens_out * 10)),
+            (uint8_t)(tempVal >> 8),
+            (uint8_t)(tempVal & 0xFF),
 
             0x01,
             0x00,
-            uint8_t(timeinfo.tm_year > 70)
+            uint8_t(now > 1700000000)   
         };
 
         int state = loraNode.sendReceive(payload, sizeof(payload), 1, false);
@@ -106,8 +109,10 @@ public:
 
         // Tente de récupérer la réponse DeviceTimeAns
         processDeviceTimeResponse();
+        radio.sleep(true);
 
         delay(60000);
+        radio.standby();
     }
 
 protected:
@@ -208,11 +213,20 @@ protected:
  * Initialise la confoguration LoRaWAN.
  * @return true si l'initialisation s'est bien passée, false sinon.
  */
-    bool initLoRaWAN() {
+    bool initLoRaWAN(const uint32_t dev_addr = 0) {
         ESP_LOGI(TAG_APP, "Configuration LoRaWAN ABP...");
 
+        auto addr = dev_addr;
+
+        if (!addr) {
+            uint8_t mac[8];
+            ESP_ERROR_CHECK(esp_efuse_mac_get_default(mac));
+            addr = ((mac[0] * 256 + mac[1]) * 256 + mac[2]) * 256 + mac[3];
+        }
+        ESP_LOGI(TAG_APP, "device address: 0x%08x", addr);
+
         int state = loraNode.beginABP(
-            LoRaConfig::DEV_ADDR,
+            addr,
             const_cast<uint8_t*>(LoRaConfig::FN_NWK_S_INT_KEY),
             const_cast<uint8_t*>(LoRaConfig::SN_NWK_S_INT_KEY),
             const_cast<uint8_t*>(LoRaConfig::NWK_S_ENC_KEY),
