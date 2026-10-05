@@ -13,7 +13,7 @@
 
 #include "radio.h"
 #include "led.h"
-#include "vbat.h"
+#include "adc.h"
 
 #define TAG_APP "APP"
 #define TZ_EUROPE_PARIS "CET-1CEST,M3.5.0,M10.5.0/3"
