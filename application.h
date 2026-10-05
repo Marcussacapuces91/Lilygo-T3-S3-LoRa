@@ -1,3 +1,19 @@
+/**
+ * @file application.h
+ * @brief Application class for LoRaWAN device management on Lilygo T3-S3
+ * 
+ * This file defines the Application class which manages the main application logic for a
+ * Lilygo T3-S3 LoRa device. It handles:
+ * - Radio initialization and LoRaWAN communication
+ * - Temperature sensor monitoring
+ * - Battery voltage measurement
+ * - Real-time clock synchronization
+ * - Power management and sleep modes
+ * - Device reset reason logging
+ * 
+ * @author Marcussacapuces91
+ * @date 2026
+ */
 
 #pragma once
 
