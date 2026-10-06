@@ -150,20 +150,74 @@ protected:
 /**
  * @see RadioLib/src/TypeDef.h
  * @see https://github.com/jgromes/RadioLib/blob/02f0afaaa32de07874e2954dd929e8c08356e24f/src/TypeDef.h
+ * @see https://jgromes.github.io/RadioLib/group__status__codes.html
  * @param error: error number (< 0)
  * @return pointer on error message string.
  */
     const char* errorMessage(const int& error) const {
         static char message[25];
         switch (error) {
-            case RADIOLIB_ERR_NONE:                 // 0 = Ok
+            case RADIOLIB_ERR_NONE:                        // 0 = Ok
                 return "No error.";
-            case RADIOLIB_ERR_INVALID_PORT:         // -1104
+            case RADIOLIB_ERR_UNKNOWN:                     // -1
+ 	            return "There was an unexpected, unknown error. If you see this, something went incredibly wrong. Your Arduino may be possessed, contact your local exorcist to resolve this error.";
+            case RADIOLIB_ERR_CHIP_NOT_FOUND:              // -2
+                return "Radio chip was not found during initialization. This can be caused by specifying wrong chip type in the constructor (i.e. calling SX1272 constructor for SX1278 chip) or by a fault in your wiring (incorrect slave select pin).";
+            case RADIOLIB_ERR_MEMORY_ALLOCATION_FAILED:    // -3
+ 	            return "Failed to allocate memory for temporary buffer. This can be cause by not enough RAM or by passing invalid pointer.";
+            case RADIOLIB_ERR_PACKET_TOO_LONG:             // -4
+                return "Packet supplied to transmission method was longer than limit.";
+            case RADIOLIB_ERR_TX_TIMEOUT:                  // -5
+ 	            return "Timed out waiting for transmission finish.";
+            case RADIOLIB_ERR_RX_TIMEOUT:                  // -6
+                return "Timed out waiting for incoming transmission.";
+            case RADIOLIB_ERR_CRC_MISMATCH:                // -7
+                return "The calculated and expected CRCs of received packet do not match. This means that the packet was damaged during transmission and should be sent again.";
+            case RADIOLIB_ERR_INVALID_BANDWIDTH:           // -8
+                return "The supplied bandwidth value is invalid for this module.";
+            case RADIOLIB_ERR_INVALID_SPREADING_FACTOR:    // -9
+                return "The supplied spreading factor value is invalid for this module.";
+            case RADIOLIB_ERR_INVALID_CODING_RATE:         // -10
+                return "The supplied coding rate value is invalid for this module.";
+            // -11 RADIOLIB_ERR_INVALID_BIT_RANGE (-11) Internal only.
+            case RADIOLIB_ERR_INVALID_FREQUENCY:           // -12
+                return "The supplied frequency value is invalid for this module.";
+            case RADIOLIB_ERR_INVALID_OUTPUT_POWER:        // -13
+                return "The supplied frequency value is invalid for this module.";
+            case RADIOLIB_ERR_NETWORK_NOT_JOINED:
+                return "RADIOLIB_ERR_NETWORK_NOT_JOINED";
+            case RADIOLIB_ERR_DOWNLINK_MALFORMED:
+                return "RADIOLIB_ERR_DOWNLINK_MALFORMED";
+            case RADIOLIB_ERR_INVALID_REVISION:
+                return "RADIOLIB_ERR_INVALID_REVISION";
+            case RADIOLIB_ERR_INVALID_PORT:             // -1104
                 return "Invalid LoRaWAN uplink port requested by user, or downlink received at invalid port.";
-            case RADIOLIB_ERR_COMMAND_QUEUE_FULL:   // -1109
+            case RADIOLIB_ERR_NO_RX_WINDOW:
+                return "RADIOLIB_ERR_NO_RX_WINDOW";
+            case RADIOLIB_ERR_INVALID_CID:
+                return "RADIOLIB_ERR_INVALID_CID";
+            case RADIOLIB_ERR_UPLINK_UNAVAILABLE:
+                return "RADIOLIB_ERR_UPLINK_UNAVAILABLE";
+            case RADIOLIB_ERR_COMMAND_QUEUE_FULL:       // -1109
                 return "Unable to push new MAC command because the queue is full.";
-            case RADIOLIB_LORAWAN_NEW_SESSION:      // -1118
+            case RADIOLIB_ERR_COMMAND_QUEUE_ITEM_NOT_FOUND:
+                return "RADIOLIB_ERR_COMMAND_QUEUE_ITEM_NOT_FOUND";
+            case RADIOLIB_ERR_JOIN_NONCE_INVALID:
+                return "RADIOLIB_ERR_JOIN_NONCE_INVALID";
+            case RADIOLIB_ERR_DWELL_TIME_EXCEEDED:
+                return "RADIOLIB_ERR_DWELL_TIME_EXCEEDED";
+            case RADIOLIB_ERR_CHECKSUM_MISMATCH:
+                return "RADIOLIB_ERR_CHECKSUM_MISMATCH";
+            case RADIOLIB_ERR_NO_JOIN_ACCEPT:
+                return "RADIOLIB_ERR_NO_JOIN_ACCEPT";
+            case RADIOLIB_LORAWAN_SESSION_RESTORED:
+                return "RADIOLIB_LORAWAN_SESSION_RESTORED";
+            case RADIOLIB_LORAWAN_NEW_SESSION:          // -1118
                 return "New session (not an error).";
+            case RADIOLIB_ERR_NONCES_DISCARDED:
+                return "RADIOLIB_ERR_NONCES_DISCARDED";
+            case RADIOLIB_ERR_SESSION_DISCARDED:
+                return "RADIOLIB_ERR_SESSION_DISCARDED";
             default:
                 snprintf(message, sizeof(message), "Unknown error: %d", error);
                 return message;
